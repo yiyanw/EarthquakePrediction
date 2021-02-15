@@ -13,7 +13,7 @@ warnings.filterwarnings('ignore')
 re_train = re.compile(r'area_\d+_train.csv')
 re_valid = re.compile(r'area_\d+_valid.csv')
 
-_token = 'put_your_token_here'
+_token = 'd5cd7cb09db944a2aabb6e8d4039b06e'
 
 
 def download_aeta_data_to_file(data_type, date_range_str, save_to, token, oversea=False):
@@ -109,19 +109,19 @@ if __name__ == "__main__":
     time_range = ['20201201', '20201231']
     file_name = time_range[0] + '-' + time_range[1]
     extractpath = './data_week/' + file_name + '/'
-    download_aeta_data_to_file("EM&GA", file_name, save_path + file_name + '.zip', _token)
+     download_aeta_data_to_file("EM&GA", file_name, save_path + file_name + '.zip', _token)
     frzip = zipfile.ZipFile(save_path + file_name + '.zip', 'r')
     extractfile = frzip.namelist()
     frzip.extractall(extractpath)
     frzip.close()
     em_path = f'{extractpath}EM&GA_{time_range[0]}-{time_range[1]}/EM_{time_range[0]}-{time_range[1]}/'
     ga_path = f'{extractpath}EM&GA_{time_range[0]}-{time_range[1]}/GA_{time_range[0]}-{time_range[1]}/'
-    for filename in os.listdir(em_path):
-        with zipfile.ZipFile(em_path + filename, 'r') as frzip:
-            frzip.extractall(em_path)
-    for filename in os.listdir(ga_path):
-        with zipfile.ZipFile(ga_path + filename, 'r') as frzip:
-            frzip.extractall(ga_path)
+     for filename in os.listdir(em_path):
+         with zipfile.ZipFile(em_path + filename, 'r') as frzip:
+             frzip.extractall(em_path)
+     for filename in os.listdir(ga_path):
+         with zipfile.ZipFile(ga_path + filename, 'r') as frzip:
+             frzip.extractall(ga_path)
 
     area_groups = [
         {'id': set([133, 246, 119, 122, 59, 127]), 'range': [30, 34, 98, 101]},
@@ -170,8 +170,10 @@ if __name__ == "__main__":
         lgb_model = lgb.Booster(model_file=f'./model/{area}_mag_model.txt')
 
         predict = np.matrix(lgb_model.predict(
-            features, num_iteration=lgb_model.best_iteration))
+            features, num_iteration=lgb_model.best_iteration, predict_disable_shape_check=True))
+        print(predict)
         predict = predict[0].argmax(axis=1)
+        print(predict)
         if predict[0] == 0:
             continue
         else:

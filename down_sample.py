@@ -13,6 +13,16 @@ def getTimeStampByDate(date):
     tss1 = '2017-01-01 00:00:00'
     timeArray = time.strptime(date, "%Y-%m-%d %H:%M:%S")
     return int(time.mktime(timeArray))
+    
+# 添加feature max min std mean ....
+def addComputedFeatures(curDataList, targetDataList):
+    desamlped_sound_data = curDataList.describe().iloc[2:8,2:]
+    for col in desamlped_sound_data.columns.values:
+        for idx in desamlped_sound_data.index:
+            targetDataList[str(col) + "_" + str(idx)] = [desamlped_sound_data.at[idx, col]]
+    
+    return targetDataList
+    
 
 # 降采样
 def groupDataByDay(data):
@@ -24,7 +34,6 @@ def groupDataByDay(data):
     resultDF = pd.DataFrame(columns=data.columns)
     curDataList = pd.DataFrame(columns=data.columns)
     for (idx, curStamp) in zip(data["index"], data["TimeStamp"]):
-        # print(idx)
         while curStamp > (startOfCurDay + oneDay):
             if curDataList.shape[0] != 0:
                 tmpDf = pd.DataFrame(curDataList.mean()).T
@@ -32,9 +41,8 @@ def groupDataByDay(data):
                 timeArray = time.localtime(tmpDf.loc[0,"TimeStamp"])
                 formatedTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
                 tmpDf.insert(2, "date", formatedTime)
-                resultDF.append(tmpDf)
+                tmpDf = addComputedFeatures(curDataList, tmpDf)
                 resultDF = pd.merge(resultDF, tmpDf, how='outer')
-                
             curDataList = pd.DataFrame(columns=data.columns)
             startOfCurDay = startOfCurDay + oneDay
         curDataList = curDataList.append(pd.DataFrame(data.loc[idx]).T)
